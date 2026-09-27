@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.medical.semantic.repository.DocumentMapper">
+
+    <resultMap id="documentResultMap" type="com.medical.semantic.domain.MedicalDocument">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="type" column="type"/>
+        <result property="specialty" column="specialty"/>
+        <result property="keywords" column="keywords"/>
+        <result property="author" column="author"/>
+        <result property="publishDate" column="publish_date"/>
+        <result property="source" column="source"/>
+        <result property="vectorId" column="vector_id"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 插入文档 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.medical.semantic.domain.MedicalDocument">
+        INSERT INTO medical_documents (
+            title, content, type, specialty, keywords,
+            author, publish_date, source, vector_id,
+            created_at, updated_at
+        ) VALUES (
+            #{title}, #{content}, #{type}, #{specialty}, #{keywords},
+            #{author}, #{publishDate}, #{source}, #{vectorId},
+            #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
+    <!-- 根据 ID 查询 -->
+    <select id="findById" resultMap="documentResultMap">
+        SELECT * FROM medical_documents
+        WHERE id = #{id}
+    </select>
+
+    <!-- 查询所有文档 -->
+    <select id="findAll" resultMap="documentResultMap">
+        SELECT * FROM medical_documents
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 根据类型查询 -->
+    <select id="findByType" resultMap="documentResultMap">
+        SELECT * FROM medical_documents
+        WHERE type = #{type}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 更新文档 -->
+    <update id="update" parameterType="com.medical.semantic.domain.MedicalDocument">
+        UPDATE medical_documents
+        SET title = #{title},
+            content = #{content},
+            type = #{type},
+            specialty = #{specialty},
+            keywords = #{keywords},
+            author = #{author},
+            publish_date = #{publishDate},
+            source = #{source},
+            vector_id = #{vectorId},
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除文档 -->
+    <delete id="delete">
+        DELETE FROM medical_documents
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 关键词搜索（使用 MySQL FULLTEXT 索引）-->
+    <select id="keywordSearch" resultMap="documentResultMap">
+        SELECT *,
+               MATCH(title, content, keywords) AGAINST(#{query} IN NATURAL LANGUAGE MODE) as relevance
+        FROM medical_documents
+        WHERE MATCH(title, content, keywords) AGAINST(#{query} IN NATURAL LANGUAGE MODE)
+        ORDER BY relevance DESC
+        LIMIT 20
+    </select>
+
+    <!-- 统计指定类型的文档数量 -->
+    <select id="countByType" resultType="long">
+        SELECT COUNT(*)
+        FROM medical_documents
+        WHERE type = #{type}
+    </select>
+
+    <!-- 统计总文档数 -->
+    <select id="countTotal" resultType="long">
+        SELECT COUNT(*)
+        FROM medical_documents
+    </select>
+
+</mapper>

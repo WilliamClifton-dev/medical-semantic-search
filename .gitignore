@@ -1,0 +1,29 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+
+# Environment
+.env
+*.env.local
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+volumes/
+
+# Test data
+data/generated/
